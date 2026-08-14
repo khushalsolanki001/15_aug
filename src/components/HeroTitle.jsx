@@ -3,7 +3,7 @@ import confetti from 'canvas-confetti';
 
 export default function HeroTitle() {
   const slogans = [
-    { main: "स्वतंत्रता दिवस", sub: "79TH INDEPENDENCE DAY OF INDIA • 15 AUGUST 2026" },
+    { main: "स्वतंत्रता दिवस", sub: "80TH INDEPENDENCE DAY OF INDIA • 15 AUGUST 2026" },
     { main: "जय हिन्द", sub: "VICTORY TO INDIA • VANDE MATARAM" },
     { main: "वन्दे मातरम्", sub: "SALUTING THE PRIDE OF OUR NATION" }
   ];
@@ -63,7 +63,7 @@ export default function HeroTitle() {
   return (
     <div className="absolute top-[11vh] sm:top-[12vh] left-0 right-0 flex flex-col items-center justify-center pointer-events-none z-20 px-3 text-center select-none">
       
-      {/* Main Large Devanagari Heading (Responsive font size for mobile) */}
+      {/* Main Large Devanagari Heading */}
       <h1 
         onClick={triggerJaiHindEffect}
         className="pointer-events-auto cursor-pointer font-['Yatra_One','Rozha_One',serif] text-[2.75rem] xs:text-5xl sm:text-7xl md:text-8xl lg:text-[7.5rem] leading-tight tracking-tight text-white transition-transform duration-300 hover:scale-[1.03] active:scale-95 filter"

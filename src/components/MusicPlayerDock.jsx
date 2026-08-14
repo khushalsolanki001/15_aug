@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, SkipBack, SkipForward, ListMusic, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward } from 'lucide-react';
 
 const PLAYLIST_ID = "PL0Z67tlyTaWo-c_QyUnhsoa4cUwceCmRu";
 
@@ -10,8 +10,6 @@ export default function MusicPlayerDock() {
   const [currentTitle, setCurrentTitle] = useState("Top 15 August Patriotic Songs");
   const [currentArtist, setCurrentArtist] = useState("Official YouTube Playlist");
   const [isPlayerReady, setIsPlayerReady] = useState(false);
-  const [showTracklist, setShowTracklist] = useState(false);
-  const [playlistVideos, setPlaylistVideos] = useState([]);
   
   const playerRef = useRef(null);
   const progressIntervalRef = useRef(null);
@@ -40,7 +38,7 @@ export default function MusicPlayerDock() {
             origin: window.location.origin
           },
           events: {
-            onReady: (event) => {
+            onReady: () => {
               setIsPlayerReady(true);
               updateVideoInfo();
             },
@@ -54,8 +52,11 @@ export default function MusicPlayerDock() {
                 setIsPlaying(false);
                 stopProgressTracker();
               } else if (event.data === window.YT.PlayerState.ENDED) {
-                // Auto plays next song seamlessly in playlist!
+                // Auto plays next song seamlessly in playlist
                 updateVideoInfo();
+                if (playerRef.current && playerRef.current.playVideo) {
+                  playerRef.current.playVideo();
+                }
               }
             }
           }
@@ -121,15 +122,29 @@ export default function MusicPlayerDock() {
     }
   };
 
+  // Switch to next song and autoplay immediately
   const handleNext = () => {
     if (playerRef.current && playerRef.current.nextVideo) {
       playerRef.current.nextVideo();
+      setTimeout(() => {
+        if (playerRef.current && playerRef.current.playVideo) {
+          playerRef.current.playVideo();
+          setIsPlaying(true);
+        }
+      }, 150);
     }
   };
 
+  // Switch to previous song and autoplay immediately
   const handlePrev = () => {
     if (playerRef.current && playerRef.current.previousVideo) {
       playerRef.current.previousVideo();
+      setTimeout(() => {
+        if (playerRef.current && playerRef.current.playVideo) {
+          playerRef.current.playVideo();
+          setIsPlaying(true);
+        }
+      }, 150);
     }
   };
 
@@ -149,7 +164,7 @@ export default function MusicPlayerDock() {
   };
 
   return (
-    <div className="fixed bottom-5 sm:bottom-7 left-0 right-0 z-40 flex flex-col items-center justify-center px-4 pointer-events-none">
+    <div className="fixed bottom-4 sm:bottom-7 left-0 right-0 z-40 flex flex-col items-center justify-center px-3 sm:px-4 pointer-events-none">
       
       {/* Hidden YouTube Player Iframe API Instance */}
       <div className="hidden">
@@ -157,11 +172,11 @@ export default function MusicPlayerDock() {
       </div>
 
       {/* Floating Translucent Player Dock (Saloon.wtf style) */}
-      <div className="pointer-events-auto relative w-full max-w-xl sm:max-w-2xl bg-black/55 hover:bg-black/70 backdrop-blur-2xl border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.7)] rounded-full p-2.5 sm:p-3 flex items-center gap-3 sm:gap-4 transition-all duration-300">
+      <div className="pointer-events-auto relative w-full max-w-xl sm:max-w-2xl bg-black/55 hover:bg-black/70 backdrop-blur-2xl border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.7)] rounded-full p-2.5 sm:p-3 flex items-center gap-2.5 sm:gap-4 transition-all duration-300">
         
         {/* Album Cover Thumbnail */}
         <div className="relative group cursor-pointer flex-shrink-0" onClick={togglePlay}>
-          <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-gradient-to-tr from-orange-500 via-amber-400 to-emerald-500 p-0.5 shadow-md">
+          <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-full bg-gradient-to-tr from-orange-500 via-amber-400 to-emerald-500 p-0.5 shadow-md">
             <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden">
               <img
                 src="https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=400&auto=format&fit=crop"
@@ -173,18 +188,18 @@ export default function MusicPlayerDock() {
         </div>
 
         {/* Track Title, Author & Timeline Progress Slider */}
-        <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
+        <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5 sm:gap-1">
           <div className="truncate">
             <h4 className="text-white font-semibold text-xs sm:text-sm truncate leading-tight">
               {currentTitle || "Top 15 August Patriotic Songs"}
             </h4>
             <p className="text-white/60 text-[10px] sm:text-xs truncate">
-              {currentArtist} • <span className="text-orange-300 font-mono text-[10px]">YouTube Playlist</span>
+              {currentArtist} • <span className="text-orange-300 font-mono text-[9px] sm:text-[10px]">YouTube Playlist</span>
             </p>
           </div>
 
           {/* Progress Slider & Timestamps */}
-          <div className="flex items-center gap-2 text-[10px] font-mono text-white/60">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-[9px] sm:text-[10px] font-mono text-white/60">
             <span>{formatTime(currentTime)}</span>
             <input
               type="range"
@@ -199,12 +214,12 @@ export default function MusicPlayerDock() {
         </div>
 
         {/* Dock Controls */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 pr-1 flex-shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 pr-1 flex-shrink-0">
           {/* Previous Song */}
           <button
             onClick={handlePrev}
             className="p-1.5 text-white/70 hover:text-white transition-all transform hover:scale-110 active:scale-95"
-            title="Previous Song in Playlist"
+            title="Previous Song (Autoplay)"
           >
             <SkipBack className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
           </button>
@@ -212,13 +227,13 @@ export default function MusicPlayerDock() {
           {/* Play / Pause Circular Button */}
           <button
             onClick={togglePlay}
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white text-black hover:bg-amber-100 flex items-center justify-center shadow-lg transition-all transform hover:scale-105 active:scale-95"
+            className="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white text-black hover:bg-amber-100 flex items-center justify-center shadow-lg transition-all transform hover:scale-105 active:scale-95"
             title={isPlaying ? "Pause" : "Play"}
           >
             {isPlaying ? (
-              <Pause className="w-5 h-5 fill-current text-black" />
+              <Pause className="w-4 h-4 sm:w-5 sm:h-5 fill-current text-black" />
             ) : (
-              <Play className="w-5 h-5 fill-current text-black ml-0.5" />
+              <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current text-black ml-0.5" />
             )}
           </button>
 
@@ -226,7 +241,7 @@ export default function MusicPlayerDock() {
           <button
             onClick={handleNext}
             className="p-1.5 text-white/70 hover:text-white transition-all transform hover:scale-110 active:scale-95"
-            title="Next Song in Playlist"
+            title="Next Song (Autoplay)"
           >
             <SkipForward className="w-4 h-4 sm:w-5 sm:h-5 fill-current" />
           </button>
